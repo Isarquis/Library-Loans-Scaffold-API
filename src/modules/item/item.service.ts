@@ -4,7 +4,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BusinessError, BusinessLogicException } from '../../common/errors/business-errors';
 import { Repository } from 'typeorm';
-import { ItemEntity } from './item.entity';
+import { ItemEntity, ItemType } from './item.entity';
 
 @Injectable()
 export class ItemService {
@@ -13,9 +13,10 @@ export class ItemService {
        private readonly itemRepository: Repository<ItemEntity>
    ){}
 
-   async findAll(): Promise<ItemEntity[]> {
-       return await this.itemRepository.find({ relations: ["loan"] });
-   }
+   async findAll(type?: ItemType): Promise<ItemEntity[]> {
+        return await this.itemRepository.find({where:{type}});
+
+  }
 
    async findOne(id: string): Promise<ItemEntity> {
        const item = await this.itemRepository.findOne({where: { id }, relations: ["loan"] } );
@@ -28,16 +29,26 @@ export class ItemService {
    async create(item: ItemEntity): Promise<ItemEntity> {
        return await this.itemRepository.save(item);
    }
+  async update(id: string, data: Partial<ItemEntity>) {
+    const item = await this.itemRepository.findOne({
+      where: { id },
+    });
 
-   async update(id: string, item: ItemEntity): Promise<ItemEntity> {
-       const persistedItem = await this.itemRepository.findOne({where:{id}});
-       if (!persistedItem)
-         throw  BusinessLogicException('The item with the given id was not found', BusinessError.NOT_FOUND);
-      
-       item.id = id; 
-      
-       return await this.itemRepository.save(item);
-   }
+    if (!item) {
+      throw new Error('Item not found');
+    }
+
+    if (data.title !== undefined) {
+      item.title = data.title;
+    }
+
+    if (data.type !== undefined) {
+      item.type = data.type;
+    }
+
+    return this.itemRepository.save(item);
+  }
+
 
    async delete(id: string) {
        const item = await this.itemRepository.findOne({where:{id}});

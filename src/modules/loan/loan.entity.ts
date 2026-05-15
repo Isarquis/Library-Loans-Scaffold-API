@@ -1,27 +1,66 @@
 /* eslint-disable prettier/prettier */
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+  Index,
+} from 'typeorm';
+
+import { User } from '../user/entities/user.entity';
 import { ItemEntity } from '../item/item.entity';
 
-@Entity()
+export enum LoanStatus {
+  ACTIVE = 'active',
+  RETURNED = 'returned',
+  OVERDUE = 'overdue',
+  LOST = 'lost',
+}
+
+@Entity({ name: 'loan_entity' })
 export class LoanEntity {
- @PrimaryGeneratedColumn('uuid')
- id: string;
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
 
- @Column()
- name: string;
- 
- @Column()
- description: string;
- 
- @Column()
- address: string;
- 
- @Column()
- city: string;
+  @ManyToOne(() => User, { eager: true })
+  @Index()
+  user!: User;
 
- @Column()
- image: string;
+  @ManyToOne(() => ItemEntity, { eager: true })
+  @Index()
+  item!: ItemEntity;
 
- @OneToMany(() => ItemEntity, item => item.loan)
- items: ItemEntity[];
+  @Column({ type: 'timestamptz' })
+  loanedAt!: Date;
+
+  @Column({ type: 'timestamptz' })
+  dueAt!: Date;
+
+  @Column({ type: 'timestamptz', nullable: true })
+  returnedAt?: Date;
+
+  // status enum
+  @Column({
+    type: 'enum',
+    enum: LoanStatus,
+    default: LoanStatus.ACTIVE,
+  })
+  status!: LoanStatus;
+
+  // multa
+  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
+  fineAmount!: number;
+
+  @CreateDateColumn()
+  createdAt!: Date;
+
+  @UpdateDateColumn()
+  updatedAt!: Date;
+
+  // opcional inverso (si quieres navegación)
+  @OneToMany(() => ItemEntity, (item) => item.loan)
+  items!: ItemEntity[];
 }

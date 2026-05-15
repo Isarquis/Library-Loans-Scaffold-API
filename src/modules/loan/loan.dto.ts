@@ -1,25 +1,46 @@
 /* eslint-disable prettier/prettier */
-import {IsNotEmpty, IsString, IsUrl} from 'class-validator';
-export class LoanDto {
+import {
+  IsDateString,
+  IsEnum,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsUUID,
+} from 'class-validator';
 
- @IsString()
- @IsNotEmpty()
- readonly name: string;
- 
- @IsString()
- @IsNotEmpty()
- readonly description: string;
- 
- @IsString()
- @IsNotEmpty()
- readonly address: string;
- 
- @IsString()
- @IsNotEmpty()
- readonly city: string;
- 
- @IsUrl()
- @IsNotEmpty()
- readonly image: string;
+export enum LoanStatus {
+  ACTIVE = 'active',
+  RETURNED = 'returned',
+  OVERDUE = 'overdue',
+  LOST = 'lost',
 }
-/* archivo: src/loan/loan.dto.ts */
+
+export class LoanDto {
+  @IsUUID()
+  @IsNotEmpty()
+  readonly userId!: string;
+
+  @IsUUID()
+  @IsNotEmpty()
+  readonly itemId!: string;
+
+  @IsDateString()
+  @IsNotEmpty()
+  readonly loanedAt!: string;
+
+  @IsDateString()
+  @IsNotEmpty()
+  readonly dueAt!: string;
+
+  @IsDateString()
+  @IsOptional()
+  readonly returnedAt?: string;
+
+  @IsEnum(LoanStatus)
+  @IsOptional()
+  readonly status?: LoanStatus;
+
+  @IsNumber()
+  @IsOptional()
+  readonly fineAmount?: number;
+}
