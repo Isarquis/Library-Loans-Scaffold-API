@@ -47,5 +47,8 @@ export class LoanService {
     
        await this.loanRepository.remove(loan);
    }
+
+
 }
 /* archivo: src/item/item.service.ts */
+/* eslint-disable prettier/prettier */
