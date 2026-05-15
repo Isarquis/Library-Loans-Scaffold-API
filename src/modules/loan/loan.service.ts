@@ -51,4 +51,3 @@ export class LoanService {
 
 }
 /* archivo: src/item/item.service.ts */
-/* eslint-disable prettier/prettier */
